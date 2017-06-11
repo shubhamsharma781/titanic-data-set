@@ -144,7 +144,7 @@ For model fiiting 2 we will use "random forest" algorithm.It is better than tree
 ```{r}
 library(randomForest)
 modfit2 <- randomForest(as.factor(Survived)~Pclass+Sex+Age+SibSp+Parch+Fare+Embarked,data = training,importance = TRUE,ntree = 2000)
-print(modfit)
+print(modfit2)
 ```
 
 ntree = 2000 means we are growing 2000 trees,importance = TRUE means it allows us to inspect variable importance.
