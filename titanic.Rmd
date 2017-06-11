@@ -1,0 +1,177 @@
+---
+title: "TITANIC DATA SET PREDICTION"
+author: "SHUBHAM SHARMA"
+date: "June 11, 2017"
+output: html_document
+---
+
+
+
+## PREDICTION ON TITANIC DATA SET
+
+This project is baed on the prediction of suvival of passengers in titanic.
+You can get titanic data set in the following link
+https://www.kaggle.com/c/titanic/data
+
+Since the downloaded file is csv file.So we have to make a data set using command
+```{r}
+titanic <- read.csv("titanic.csv")
+```
+
+To view the data set simply use 
+```{r}
+View(titanic)
+```
+
+You will observe that in Age variable there are many missing values i.e NA values.
+To remove that simpy use 
+```{r}
+bad <- is.na(titanic$Age)
+titanicnew <- titanic[!bad,]
+```
+
+Now your titanicnew is the data set which will not contain any missing values.
+To view that data set simply use
+```{r}
+View(titanicnew)
+```
+
+Now divide the data set into 2 parts -
+- training
+- testing
+
+Build all your model fit on training set and do prediction on testing set.
+
+For dividing the data set into 2 parts ,"caret",package is required .
+If you don't have it , first install it, using command
+install.packages("caret")
+
+Now to use that package load it,by using command
+```{r}
+library(caret)
+```
+
+Now you can divide the data set into 2 parts(i.e training and testing),by using createDataPartition() function, which is available in caret package,so use command
+```{r}
+intrain <- createDataPartition(y = titanicnew$Survived,p = 0.7,list = FALSE)
+```
+
+This command says that intrain variable contains 70% of rows of iris data. 
+
+Now use command
+```{r}
+training <- titanicnew[intrain,]
+testing <- titanicnew[-intrain,]
+```
+
+This command says that training data set will contain rows that were in intrain variable, and testing data set will contain rows that were not in intrain variable.
+
+So our training data set will contain 70% of our original data and testing data set will contain 30% of our data.
+
+To view training and testing data set , use command
+```{r}
+View(training)
+View(testing)
+```
+
+To see no. of rows in the training and testing data set use
+```{r}
+dim(training)
+```
+```{r}
+dim(testing)
+```
+
+## MODEL FITTING 1
+
+For model fiiting we will use "tree classification" algorithm.Use command
+```{r}
+library(rpart)
+modfit <- rpart(Survived~Pclass+Sex+Age+SibSp+Parch+Fare+Embarked,data = training,method = "class")
+print(modfit)
+```
+
+rpart() function is used for using tree classifaction and data = training says that we are applying this on training data set,method = "class" since we just want 0 or 1,if we wanted to predict a continuous variable we would have set method = "anova".
+Here for prediction we have not used Name,Passenger id,ticket,cabin since these variables are not important and are different for different passengers.So we have excluded these.
+
+### PLOT
+ 
+Now to have a good plot of our above fitting , install package "rattle",using command
+install.packages("rattle")
+
+
+Now load that package using command 
+```{r}
+library(rattle)
+```
+
+Now for plotting use function fancyRpartPlot() which is available in rattle package,so use command
+
+```{r}
+fancyRpartPlot(modfit,main = "classfication tree")
+```
+
+## PREDICTION
+
+Now for predicting we will use testing data set and apply same model fitting that we made on training data set.
+For predicting we will use predict() function.So we will use command 
+```{r}
+pred <- predict(modfit,testing,type = "class")
+```
+ 
+This will apply modfit on testing data set and will predict the Survived in testing data set.
+
+Now you can make a table of original values and predicted values using command
+```{r}
+table(pred,testing$Survived)
+```
+
+### PLOT
+
+To have a plot of how correctly you predicted you can use command
+```{r}
+testing$predright <- pred == testing$Survived
+qplot(Survived,color = predright,data = testing)
+```
+
+Here we made a new variable in testing data set called predright which contains logical values TRUE or FALSE depending on whether our predicted and original values are same or not.
+
+From the plot and the table of predictions , you observe that most of our predictions were right.
+
+## MODEL FITTING 2
+
+For model fiiting 2 we will use "random forest" algorithm.It is better than tree algorithm.Use command
+```{r}
+library(randomForest)
+modfit2 <- randomForest(as.factor(Survived)~Pclass+Sex+Age+SibSp+Parch+Fare+Embarked,data = training,importance = TRUE,ntree = 2000)
+print(modfit)
+```
+
+ntree = 2000 means we are growing 2000 trees,importance = TRUE means it allows us to inspect variable importance.
+
+## PREDICTION 2
+
+Now for predicting we will use testing data set and apply same model fitting that we made on training data set.
+For predicting we will use predict() function.So we will use command 
+```{r}
+pred2 <- predict(modfit,testing)
+```
+ 
+This will apply modfit on testing data set and will predict the Survived in testing data set.
+
+Now you can make a table of original values and predicted values using command
+```{r}
+table(pred,testing$Survived)
+```
+
+### PLOT
+
+To have a plot of how correctly you predicted you can use command
+```{r}
+testing$pred2right <- pred2 == testing$Survived
+qplot(Survived,color = "pred2right",data = testing)
+```
+
+Here we made a new variable in testing data set called predright which contains logical values TRUE or FALSE depending on whether our predicted and original values are same or not.
+
+From the plot and the table of predictions , you observe that most of our predictions were right.And it gave better result than tree algorithm.
