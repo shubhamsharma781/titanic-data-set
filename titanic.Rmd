@@ -154,14 +154,14 @@ ntree = 2000 means we are growing 2000 trees,importance = TRUE means it allows u
 Now for predicting we will use testing data set and apply same model fitting that we made on training data set.
 For predicting we will use predict() function.So we will use command 
 ```{r}
-pred2 <- predict(modfit,testing)
+pred2 <- predict(modfit2,testing)
 ```
  
 This will apply modfit on testing data set and will predict the Survived in testing data set.
 
 Now you can make a table of original values and predicted values using command
 ```{r}
-table(pred,testing$Survived)
+table(pred2,testing$Survived)
 ```
 
 ### PLOT
@@ -169,7 +169,7 @@ table(pred,testing$Survived)
 To have a plot of how correctly you predicted you can use command
 ```{r}
 testing$pred2right <- pred2 == testing$Survived
-qplot(Survived,color = "pred2right",data = testing)
+qplot(Survived,color = pred2right,data = testing)
 ```
 
 Here we made a new variable in testing data set called predright which contains logical values TRUE or FALSE depending on whether our predicted and original values are same or not.
